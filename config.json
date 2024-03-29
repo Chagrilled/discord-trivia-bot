@@ -1,0 +1,9 @@
+{
+    "host": "",
+    "user": "",
+    "password": "",
+    "database": "theme_trivia",
+    "discordToken": "",
+    "channelName": "theme-trivia",
+    "setUsers": ["discordID"]
+}
