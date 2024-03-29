@@ -12,7 +12,7 @@ To use:
 - As a user in the `setUser` array, post a video to `#theme-trivia`
 - Create a thread from it
 - In the thread, post `~set game: the game theme: the theme
-  - Sections can be split by `/` for alternate answers: `main theme/title theme/overworld and are all valid
+  - Sections can be split by `/` for alternate answers: `main theme/title theme/overworld` and are all valid
 - Everyone else messages the thread with `~guess their guesses
 - There are two points for each guess - the game, and the theme.
 - Guesses have to contain an entire "section" of the keywords - i.e you must include `main theme` from the example above to get the theme point
