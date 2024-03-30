@@ -20,6 +20,7 @@ const dbConfig = {
     database
 };
 
+const POINTS_CEILING = 5;
 const themePrefix = ':musical_note: theme :musical_note:';
 const gamePrefix = ':video_game: game :video_game:';
 
@@ -97,10 +98,12 @@ client.on("messageCreate", async message => {
             console.log(theme, game);
             let guessedTheme = false;
             let guessedGame = false;
+            let guesses = 0;
 
             if (rows.length) {
                 guessedTheme = rows[0].theme;
                 guessedGame = rows[0].game;
+                guesses = rows[0].guesses;
                 if (guessedGame && guessedTheme) return;
             }
 
@@ -114,18 +117,22 @@ client.on("messageCreate", async message => {
                 gameCorrect = true;
 
             const both = gameCorrect && themeCorrect;
+            const points = Math.max(1, POINTS_CEILING - guesses);
 
             if (gameCorrect || themeCorrect) {
                 thread.send(`🏆 ${userMention(message.author.id)} guessed the \
                 ${gameCorrect ? gamePrefix : ''} \
                 ${both ? '**AND**' : ''} \
                 ${themeCorrect ? themePrefix : ''} \
-                correctly and gained ${both ? '**2**' : '**1**'} point${both ? 's' : ''} 🏆\
+                correctly and gained ${both ? `**${points * 2}**` : `**${points}**`} point${((points > 1) || both) ? 's' : ''} 🏆\
             `.replace(/\s\s+/g, ' '));
                 await con.query(`INSERT INTO history (discord_id, question_id, game, theme) VALUES ('${message.author.id}', '${startingMessageID}', ${gameCorrect || guessedGame}, ${themeCorrect || guessedTheme}) ON DUPLICATE KEY UPDATE theme = VALUES(theme), game = VALUES(game)`);
-                await con.query(`INSERT INTO leaderboard (id, score) VALUES ('${message.author.id}', 1) ON DUPLICATE KEY UPDATE score = score + ${both ? 2 : 1}`);
+                await con.query(`INSERT INTO leaderboard (id, score) VALUES ('${message.author.id}', 1) ON DUPLICATE KEY UPDATE score = score + ${both ? points * 2 : points}`);
             }
-            else thread.send(`${userMention(message.author.id)} has guessed wrong 🧠❌`);
+            else {
+                thread.send(`${userMention(message.author.id)} has guessed wrong 🧠❌`);
+                await con.query(`INSERT INTO history (discord_id, question_id, guesses) VALUES ('${message.author.id}', '${startingMessageID}', ${guesses}) ON DUPLICATE KEY UPDATE guesses = VALUES(guesses) + 1`);
+            }
 
             con.end();
         } catch (e) {
