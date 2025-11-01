@@ -87,7 +87,7 @@ client.on("messageCreate", async message => {
     }
 
     if (message.content.startsWith('~guess')) {
-        const answer = message.content.toLowerCase().replace('~answer', '');
+        const answer = message.content.toLowerCase().replace('~guess', '');
         console.log(`${message.author.username} has guessed ${answer}`);
         message.delete();
         const con = await MySQL.createConnection(dbConfig);
